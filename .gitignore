@@ -1,5 +1,5 @@
 data
-export_onnx.py
-lenet.onnx
+*.onnx
 __pycache__
 pytorch_model.bin
+

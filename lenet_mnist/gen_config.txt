@@ -1,0 +1,134 @@
+#######################################
+#[PATH]
+#######################################
+
+### [GENERAL]
+## model 
+[path/model_dir] = ../nvtai_tool/input/model/customer/Lenet_5_MNIST_v2
+
+## mean 
+# MNIST 通常不使用 mean 檔；保留可不填或指向不存在的檔案
+[path/mean_path] = ../nvtai_tool/config/Lenet_5_MNIST_v2/mean_data.txt
+
+### [REFERENCE DATA]
+## img (用於 gentool 生成參考/校正資料；已放 mnist 的 bin 或 jpeg)
+[path/ref_img_dir] = ../nvtai_tool/input/data/mnist
+## list
+[path/ref_list_path] = ../nvtai_tool/input/data/mnist/ref_img_list.txt
+
+### [GENERATOR] 
+## gen output root
+[path/out_dir] = ../nvtai_tool/output
+
+#######################################
+#[REFERENCE DATA]
+#######################################
+
+## img num [1, 1000] (短測試用 20，可視情況增大)
+[ref_data/num] = 1
+
+#######################################
+#[FUNCTION]
+#######################################
+
+### [MULTISCALE]
+## model mode
+# 0: single-scaled net input
+[multiscale/en] = 0
+
+## (not used when multiscale/en=0, but safe值)
+[multiscale/width] = 28
+[multiscale/height] = 28
+
+### [PREPROCESS]
+
+## NUE2 input format
+# 0: FMT_YONLY
+# 1: FMT_RGB
+# 2: FMT_YUV420
+# 3: FMT_FEAT    <-- 我們改成 FMT_FEAT，因為你的 model expect feature tensors
+# 4: FMT_BGR
+[preproc/in/fmt] = 3
+
+## input type for FMT_FEAT
+# 0: TYPE_INT8
+# 1: TYPE_UINT8
+# 2: TYPE_INT16
+# 3: TYPE_UINT16
+# 6: TYPE_FLOAT32   <-- 改為 float32，與 deploy_float.onnx 對應
+[preproc/in/type] = 6
+
+## input frac bit num for FMT_FEAT (not used for float)
+[preproc/in/frac_bit_num] = 0
+
+## input size: 當使用 FMT_FEAT，這表示 feature buffer size 
+# 對於 LeNet/MNIST，model 的 input shape 常為 (1,1,28,28) 或 (1,28,28)。
+# 這裡設為 1x28x28，channel=1
+[preproc/in/width] = 28
+[preproc/in/height] = 28
+[preproc/in/channel] = 1
+[preproc/in/batch] = 1
+[preproc/in/time] = 1
+
+# 0: RESIZE_WH
+[preproc/resize/mode] = 0
+
+## RESIZE_WH PARAMETERS (not used for FMT_FEAT, but set sane defaults)
+[preproc/resize/width] = 28
+[preproc/resize/height] = 28
+
+## [MEAN SUB]
+[preproc/meansub/en] = 0
+[preproc/meansub/mode] = 0
+[preproc/meansub/fmt] = 0
+[preproc/meansub/fmt_type] = 0
+
+## [NORMALIZE]
+# 0: disable normalization (we assume deploy_float.onnx already expects float inputs scaled appropriately)
+# If your ONNX expects inputs scaled to [0,1], set normalize/en=1 and scale=1.0/255.0
+[preproc/normalize/en] = 0
+[preproc/normalize/scale] = 1.0
+
+## [NUE2 OUT FORMAT]
+# 4: PREPROC_OUT_FMT_FEAT -> 輸出 feature tensor 給後續 pipeline（與 FMT_FEAT 一致）
+[preproc/out_fmt] = 4
+
+### [POSTPROCESS]
+# 0: disable post process
+# for classification we can enable it to let gentool compute accuracy if labels provided
+[postproc/en] = 1
+
+#######################################
+#[FEATURE PRECISION]
+#######################################
+[precision/in_hp/conv_en] = 0
+[precision/in_hp/bnscale_en] = 0
+[precision/in_hp/deconv_en] = 0
+[precision/in_hp/fc_en] = 0
+[precision/in_hp/eltwise_en] = 0
+[precision/in_hp/roipool_en] = 0
+
+[precision/balance_weight/out_range_ratio] = 1000.000000
+[precision/ref_relu_outval_en] = 1
+[precision/cle_en] = 0
+
+#######################################
+#[WEIGHT COMPRESSION]
+#######################################
+[compression/method/quan_en] = 0
+[compression/method/vlc_en] = 0
+
+#######################################
+#[PERFORMANCE MODE]
+#######################################
+[performance/mode] = 0
+[performance/shrink_en] = 0
+[performance/cnn_engine_mode] = 0
+[performance/job_schedule_en] = 0
+
+#######################################
+#[CALIBRATION]
+#######################################
+[precision/calib_mode] = 3
+[precision/percentile] = 0.9999
+[precision/quan_scheme] = 1
